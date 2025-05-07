@@ -17,6 +17,9 @@ class Store:
         self.root.title("THE ST0RE")
         self.items_list = []
 
+        self.data_frame = tk.Frame(root)
+        self.data_frame.pack()
+
         products = [
             "Full cream milk (2 L)",
             "Instant coffee (200 g)",
@@ -29,7 +32,7 @@ class Store:
             "Copy paper (A4, 500 sheets, white)",
             "Ballpoint pens (blue ink, 12-pack)",
             "Stapler (full-strip, 20-sheet capacity)",
-            "Sticky notes (3×3 inch, yellow, 12-pack)",
+            "Sticky notes (3x3 inch, yellow, 12-pack)",
             "Laundry detergent (liquid, 2 L)",
             "Paper towels (8 rolls)",
             "Rubbish bags (kitchen, 13 gallon, 90-pack)",
@@ -45,10 +48,16 @@ class Store:
             item = Item(name, stock)
             self.items_list.append(item)
 
+        n = 0
         for item in self.items_list:
-            print(item.name)
-            print(item.stock_level)
-            print()
+            name_label = tk.Label(self.data_frame, text=item.name)
+            name_label.grid(row=n, column=0)
+
+            stock_label = tk.Label(self.data_frame, text=item.stock_level)
+            stock_label.grid(row=n, column=1)
+            
+            n += 1
+
 
     def sell(self):
         print("sell")
