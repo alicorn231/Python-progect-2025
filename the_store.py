@@ -17,6 +17,7 @@ class Store:
 
         self.data_frame = tk.Frame(root)
         self.data_frame.pack()
+        tk.Label(self.data_frame, text="Product List", font=("Arial", 16, "bold")).grid(row=0, column=0, columnspan=5, pady=(0, 10))
 
         # List of (name, stock) tuples
         products = [
@@ -48,16 +49,17 @@ class Store:
 
         # Create UI for each item
         for index, item in enumerate(self.items_list):
-            tk.Label(self.data_frame, text=item.name).grid(row=index, column=0)
+            row_num = index + 1
+            tk.Label(self.data_frame, text=item.name).grid(row=row_num, column=0)
             stock_label = tk.Label(self.data_frame, text=str(item.stock_level))
-            stock_label.grid(row=index, column=1)
+            stock_label.grid(row=(row_num), column=1)
 
             entry = tk.Entry(self.data_frame, width=5)
-            entry.grid(row=index, column=4)
+            entry.grid(row=row_num, column=4)
 
-            tk.Button(self.data_frame, text="Add:", command=lambda i=index: self.operate(i, "add")).grid(row=index, column=2)
+            tk.Button(self.data_frame, text="Add:", command=lambda i=index: self.operate(i, "add")).grid(row=row_num, column=2)
 
-            tk.Button(self.data_frame, text="Minus:", command=lambda i=index: self.operate(i, "minus")).grid(row=index, column=3)
+            tk.Button(self.data_frame, text="Minus:", command=lambda i=index: self.operate(i, "minus")).grid(row=row_num, column=3)
 
             self.entries.append({
                 "entry": entry,
