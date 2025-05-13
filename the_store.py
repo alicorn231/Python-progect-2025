@@ -77,8 +77,14 @@ class Store:
                 self.items_list[product_index].stock_level -= amount
             new_stock = self.items_list[product_index].stock_level
             self.entries[product_index]["stock_label"].config(text=str(new_stock))
+
+            entry_widget.config(bg= "#1b1b1b")
+            entry_widget.delete(0, tk.END)
+
+            # Clear error message
+            self.error_label.config(text="")
         except ValueError:
-            print("Invalid input: please enter an integer")
+            entry_widget.config(bg="red")
 
 if __name__ == "__main__":
     root = tk.Tk()
