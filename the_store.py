@@ -52,23 +52,25 @@ class Store:
             stock_label = tk.Label(self.data_frame, text=str(item.stock_level))
             stock_label.grid(row=index, column=1)
 
-            add_entry = tk.Entry(self.data_frame, width=5)
-            add_entry.grid(row=index, column=3)
+            entry = tk.Entry(self.data_frame, width=5)
+            entry.grid(row=index, column=4)
+
             tk.Button(self.data_frame, text="Add:", command=lambda i=index: self.operate(i, "add")).grid(row=index, column=2)
 
-            minus_entry = tk.Entry(self.data_frame, width=5)
-            minus_entry.grid(row=index, column=5)
-            tk.Button(self.data_frame, text="Minus:", command=lambda i=index: self.operate(i, "minus")).grid(row=index, column=4)
+            tk.Button(self.data_frame, text="Minus:", command=lambda i=index: self.operate(i, "minus")).grid(row=index, column=3)
 
             self.entries.append({
-                "add": add_entry,
-                "minus": minus_entry,
+                "entry": entry,
                 "stock_label": stock_label
             })
 
+
+        self.error_label = tk.Label(self.root, fg="red", font=("Arial", 14, "bold"))
+        self.error_label.pack(pady=5)
+
     def operate(self, product_index, operator):
         """Update stock level based on user input."""
-        entry_widget = self.entries[product_index][operator]
+        entry_widget = self.entries[product_index]["entry"]
         try:
             amount = int(entry_widget.get())
             if operator == "add":
@@ -81,10 +83,15 @@ class Store:
             entry_widget.config(bg= "#1b1b1b")
             entry_widget.delete(0, tk.END)
 
-            # Clear error message
             self.error_label.config(text="")
         except ValueError:
+            self.error_label.config(text="invalid input")
             entry_widget.config(bg="red")
+
+            self.error_label.after(3000, lambda: self.error_label.config(text=""))
+            self.error_label.after(3000, lambda:entry_widget.config(bg="#1b1b1b"))
+            entry_widget.after(500, lambda: entry_widget.delete(0, tk.END))
+    
 
 if __name__ == "__main__":
     root = tk.Tk()
