@@ -1,5 +1,4 @@
 import tkinter as tk
-products = 0
 
 class Item:
     """Information for each item."""
@@ -20,6 +19,7 @@ class Store:
 
         self.data_frame = tk.Frame(root)
         self.data_frame.pack()
+        self.entries = []
 
         products = {
             0: ["Full cream milk (2 L)", 5],
@@ -49,7 +49,8 @@ class Store:
         for index, (name, stock) in products.items():
             item = Item(name, stock, index)
             self.items_list.append(item)
-            print(f"{name}, {stock}, {index}")
+            # print(f"{name}, {stock}, {index}")
+            self.entries.append(0)
         n = 0
         for item in self.items_list:
             name_label = tk.Label(self.data_frame, text=item.name)
@@ -57,24 +58,44 @@ class Store:
 
             stock_label = tk.Label(self.data_frame, text=item.stock_level)
             stock_label.grid(row=n, column=1)
-            # self.add_button = tk.Button(self.data_frame, text="Add:", command=lambda index=item.item_index: self.add(index))
             add_button = tk.Button(self.data_frame, text="Add:", command=lambda i=item.item_index: self.add(i))
-            self.add_button.grid(row=n, column= 2)
-            self.add_button_box = tk.Entry(self.data_frame)
-            self.add_button_box.grid(row=n, column= 3)
-            self.minus_button = tk.Button(self.data_frame, text = "Minus:", command=lambda: self.minus(item.item_index))
-            self.minus_button.grid(row=n, column= 4)
-            self.minus_button_box = tk.Entry(self.data_frame)
-            self.minus_button_box.grid(row=n, column= 5)
+            add_button.grid(row=n, column= 2)
+            add_entry = tk.Entry(self.data_frame)
+            add_entry.grid(row=n, column=3)
+
+            self.value_test(add_entry)
+
+            self.entries[n]+= add_entry
+ 
+            minus_button = tk.Button(self.data_frame, text="Minus:", command=lambda i=item.item_index: self.minus(i))
+            minus_button.grid(row=n, column= 4)
+            minus_entry = tk.Entry(self.data_frame)
+            minus_entry = int(minus_entry)
+            minus_entry.grid(row=n, column= 5)
+            self.entries[n]-= minus_entry
             
             n += 1
         
     def add(self, product_no):
-        print(f"sell, {product_no}")
+        print(f"stock, {product_no}")
+        input = self.entries[product_no].get()
+        print(f"number in box, {input}")
 
     def minus(self, product_no):
-        print(f"restock, {product_no}")
-
+        print(f"sell, {product_no}")
+        input = self.entries[product_no].get()
+        print(f"number in box, {input}")
+    
+    def value_test(self, entry_widget):
+        is_valid = False
+        while not is_valid:
+            try:
+                value = int(entry_widget.get())
+                is_valid = True
+                return value
+            except ValueError:
+                # print("Invalid input: not an integer")
+                is_valid = False
 if __name__ == "__main__":
     root = tk.Tk()
     store = Store(root)
