@@ -12,9 +12,10 @@ class Store:
     def __init__(self, root):
         self.root = root
         self.root.title("THE ST0RE")
-        self.items_list = []
+        self.items = []
         self.entries = []
         self.start_row = 2
+        self.black = "#1e1e1e"
 
         self.data_frame = tk.Frame(root)
         self.data_frame.pack(padx=10, pady=10)
@@ -59,7 +60,7 @@ class Store:
         ]
 
         for name, stock in products:
-            self.items_list.append(Item(name, stock))
+            self.items.append(Item(name, stock))
 
         self.render_items()
 
@@ -75,7 +76,7 @@ class Store:
                 widget.destroy()
         
         self.entries.clear()
-        for index, item in enumerate(self.items_list):
+        for index, item in enumerate(self.items):
             row_num = index + start_row
             row_num = index + self.start_row
             tk.Label(self.data_frame, text=item.name).grid(row=row_num, column=1, padx=10)
@@ -86,7 +87,6 @@ class Store:
             entry.grid(row=row_num, column=4)
 
             tk.Button(self.data_frame, text="Add", command=lambda i=index: self.operate(i, "add")).grid(row=row_num, column=3)
-            tk.Button(self.data_frame, text="Minus", command=lambda i=index: self.operate(i, "minus")).grid(row=row_num, column=5)
             tk.Button(self.data_frame, text="Minus", command=lambda i=index: self.operate(i, "minus")).grid(row=row_num, column=5, padx=20)
 
             self.entries.append({
@@ -96,37 +96,36 @@ class Store:
 
     def operate(self, product_index, operator):
         """Update stock level based on user input."""
-        entry_widget = self.entries[product_index]["entry"]
+        quantity_entry = self.entries[product_index]["entry"]
         try:
-            amount = int(entry_widget.get())
+            amount = int(quantity_entry.get())
             if operator == "add":
-                self.items_list[product_index].stock_level += amount
+                self.items[product_index].stock_level += amount
             else:
-                self.items_list[product_index].stock_level -= amount
-            new_stock = self.items_list[product_index].stock_level
+                self.items[product_index].stock_level -= amount
+            new_stock = self.items[product_index].stock_level
             if new_stock < 0:
                 new_stock = 0
-                self.items_list[product_index].stock_level = 0
+                self.items[product_index].stock_level = 0
             self.entries[product_index]["stock_label"].config(text=str(new_stock))
 
-            entry_widget.config(bg="#008000")  # Set the initial background to dark
-            entry_widget.after(500, lambda: entry_widget.config(bg="#1b1b1b"))
-            entry_widget.delete(0, tk.END)
+            quantity_entry.config(bg="#008000")  # Set the initial background to dark
+            quantity_entry.after(500, lambda: quantity_entry.config(bg=self.black))
+            quantity_entry.delete(0, tk.END)
             self.error_label.config(text="")
         except ValueError:
             self.error_label.config(text="Enter a number")
-            entry_widget.config(bg="red")
+            quantity_entry.config(bg="red")
             self.error_label.after(5000, lambda: self.error_label.config(text=""))
-            self.error_label.after(500, lambda: entry_widget.config(bg="#1b1b1b"))
-            entry_widget.after(500, lambda: entry_widget.delete(0, tk.END))
+            self.error_label.after(500, lambda: quantity_entry.config(bg=self.black))
+            quantity_entry.after(500, lambda: quantity_entry.delete(0, tk.END))
 
     def new_item(self):
         name = self.name_entry.get()
         stock = self.stock_entry.get()
-        self.render_items()
         if len(name) < 3:
             self.name_entry.config(bg="red")
-            self.name_entry.after(500, lambda: self.name_entry.config(bg="#1b1b1b"))
+            self.name_entry.after(500, lambda: self.name_entry.config(bg=self.black))
             self.error_label.config(text="Please enter a valid name (at least 3 characters)")
             self.error_label.after(3000, lambda: self.error_label.config(text=""))
             return
@@ -134,17 +133,17 @@ class Store:
 
         try:
             stock = int(stock)  # Convert stock to an integer
-            self.items_list.append(Item(name, stock))  # Add the new item
+            self.items.append(Item(name, stock))  # Add the new item
             self.render_items()  # Re-render the list with the new item
             self.name_entry.delete(0, tk.END)  # Clear the name entry
             self.stock_entry.delete(0, tk.END)  # Clear the stock entry
             self.stock_entry.config(bg="Green")
             self.name_entry.config(bg="Green")
-            self.stock_entry.after(500, lambda: self.stock_entry.config(bg="#1b1b1b"))
-            self.name_entry.after(500, lambda: self.name_entry.config(bg="#1b1b1b"))
+            self.stock_entry.after(500, lambda: self.stock_entry.config(bg=self.black))
+            self.name_entry.after(500, lambda: self.name_entry.config(bg=self.black))
         except ValueError:
             self.stock_entry.config(bg="red")
-            self.stock_entry.after(500, lambda: self.stock_entry.config(bg="#1b1b1b"))
+            self.stock_entry.after(500, lambda: self.stock_entry.config(bg=self.black))
             self.error_label.config(text="Please enter a valid number for stock level.")
             self.error_label.after(3000, lambda: self.error_label.config(text="")) 
 if __name__ == "__main__":
