@@ -32,6 +32,7 @@ class Store:
         self.start_row = 2
         self.BLACK = "#1e1e1e"
         self.GREEN = "#008000"
+        self.MAX_STOCK = 1000
 
         self.data_frame = tk.Frame(root)
         self.data_frame.pack(padx=10, pady=10)
@@ -142,6 +143,10 @@ class Store:
                 new_stock = 0
                 self.items[product_index].stock_level = 0
 
+            if new_stock >= self.MAX_STOCK:  # ensuring stock way to big
+                new_stock = self.MAX_STOCK
+                self.items[product_index].stock_level = self.MAX_STOCK
+
             self.entries[product_index]["stock_label"].config(text=str(new_stock))
 
             quantity_entry.config(bg=self.GREEN)
@@ -167,22 +172,40 @@ class Store:
             self.error_label.after(3000, lambda: self.error_label.config(text=""))
             return
 
+        if any(item.name.lower() == name.lower() for item in self.items):
+            self.name_entry.config(bg="red")
+            self.name_entry.after(500, lambda: self.name_entry.config(bg=self.BLACK))
+            self.error_label.config(text="This product already exists.")
+            self.error_label.after(3000, lambda: self.error_label.config(text=""))
+            return
+
         try:
             stock = int(stock)
-            self.items.append(Item(name, stock))
-            self.render_items()  # Re-render the list with the new item
-            self.name_entry.delete(0, tk.END)
-            self.stock_entry.delete(0, tk.END)
-            self.stock_entry.config(bg=self.GREEN)
-            self.name_entry.config(bg=self.GREEN)
-            self.stock_entry.after(500, lambda: self.stock_entry.config(bg=self.BLACK))
-            self.name_entry.after(500, lambda: self.name_entry.config(bg=self.BLACK))
-
+            if stock <= 0 or stock > self.MAX_STOCK:
+                self.stock_entry.config(bg="red")
+                self.stock_entry.after(500, lambda: self.stock_entry.config(bg=self.BLACK))
+                self.error_label.config(text=f"Stock must be between 1 and {self.MAX_STOCK}.")
+                self.error_label.after(3000, lambda: self.error_label.config(text=""))
+                return
         except ValueError:
             self.stock_entry.config(bg="red")
             self.stock_entry.after(500, lambda: self.stock_entry.config(bg=self.BLACK))
             self.error_label.config(text="Please enter a valid number for stock level.")
             self.error_label.after(3000, lambda: self.error_label.config(text=""))
+            return
+
+        # If all validations pass, add the new item
+        self.items.append(Item(name, stock))
+        self.render_items()
+
+        # Clear and highlight inputs
+        self.name_entry.delete(0, tk.END)
+        self.stock_entry.delete(0, tk.END)
+        self.name_entry.config(bg=self.GREEN)
+        self.stock_entry.config(bg=self.GREEN)
+        self.name_entry.after(500, lambda: self.name_entry.config(bg=self.BLACK))
+        self.stock_entry.after(500, lambda: self.stock_entry.config(bg=self.BLACK))
+        self.error_label.config(text="")
 
 
 if __name__ == "__main__":
