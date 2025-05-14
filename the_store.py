@@ -14,30 +14,34 @@ class Store:
         self.root.title("THE ST0RE")
         self.items_list = []
         self.entries = []
+        self.start_row = 2
 
         self.data_frame = tk.Frame(root)
-        self.data_frame.pack()
-        tk.Label(self.data_frame, text="Product List", font=("Arial", 16, "bold")).grid(row=0, column=1, columnspan=5, pady=(0, 10))
+        self.data_frame.pack(padx=10, pady=10)
 
-        # New Product Label
-        new_pro_label = tk.Label(self.data_frame, text="New Product:", font=("Arial", 20, "bold"))
-        new_pro_label.grid(row=1, column=0, padx=10, pady=(5, 50), ipadx=5, ipady=5, sticky="w")
+        tk.Label(self.data_frame, text="Product List", font=("Arial", 16, "bold")).grid(
+            row=0, column=1, columnspan=6, pady=(0, 10)
+        )
 
-        # Name Label and Entry
-        name_label = tk.Label(self.data_frame, text="name:", bd=2, relief="solid")
-        name_label.grid(row=1, column=1, padx=10, pady=(5, 50), ipadx=5, ipady=5, sticky="w")
-        self.name_entry = tk.Entry(self.data_frame, width=15, bd=2, relief="solid")
-        self.name_entry.grid(row=1, column=1, pady=(5, 50), padx=(60, 10)) 
+        # New Product Section (row 1)
+        tk.Label(self.data_frame, text="New Product:", font=("Arial", 14, "bold")).grid(
+            row=1, column=0, padx=5, pady=(0, 10), sticky="e"
+        )
 
-        # Stock Level Label and Entry
-        stock_label = tk.Label(self.data_frame, text="Stock:", bd=2, relief="solid")
-        stock_label.grid(row=1, column=2, padx=10, pady=(5, 50), ipadx=5, ipady=5)
-        self.stock_entry = tk.Entry(self.data_frame, width=5, bd=2, relief="solid")
-        self.stock_entry.grid(row=1, column=2, pady=(5, 50), padx=(70, 10))
+        tk.Label(self.data_frame, text="Name:").grid(
+            row=1, column=1, padx=2, pady=(0, 10), sticky="e"
+        )
+        self.name_entry = tk.Entry(self.data_frame, width=20)
+        self.name_entry.grid(row=1, column=2, padx=2, pady=(0, 10), sticky="w")
 
-        # Submit Button
-        submit_button = tk.Button(self.data_frame, text="Submit", bd=2, relief="solid", command=self.new_item)
-        submit_button.grid(row=1, column=3, padx=10, pady=(5, 50), ipadx=5, ipady=5, sticky="e")
+        tk.Label(self.data_frame, text="Stock:").grid(
+            row=1, column=3, padx=2, pady=(0, 10), sticky="e"
+        )
+        self.stock_entry = tk.Entry(self.data_frame, width=5)
+        self.stock_entry.grid(row=1, column=4, padx=2, pady=(0, 10), sticky="w")
+
+        submit_button = tk.Button(self.data_frame, text="Submit", command=self.new_item)
+        submit_button.grid(row=1, column=5, padx=5, pady=(0, 10), sticky="w")
 
         # List of (name, stock) tuples
         products = [
@@ -73,9 +77,16 @@ class Store:
 
     def render_items(self):
         """Render the product list to the UI."""
-        start_row = 2
+
+        for widget in self.data_frame.winfo_children():
+            info = widget.grid_info()
+            if info["row"] >= self.start_row:
+                widget.destroy()
+        
+        self.entries.clear()
+
         for index, item in enumerate(self.items_list):
-            row_num = index + start_row
+            row_num = index + self.start_row
             tk.Label(self.data_frame, text=item.name).grid(row=row_num, column=1, padx=10)
             stock_label = tk.Label(self.data_frame, text=str(item.stock_level))
             stock_label.grid(row=row_num, column=2, padx=10)
@@ -84,7 +95,7 @@ class Store:
             entry.grid(row=row_num, column=4)
 
             tk.Button(self.data_frame, text="Add", command=lambda i=index: self.operate(i, "add")).grid(row=row_num, column=3)
-            tk.Button(self.data_frame, text="Minus", command=lambda i=index: self.operate(i, "minus")).grid(row=row_num, column=5)
+            tk.Button(self.data_frame, text="Minus", command=lambda i=index: self.operate(i, "minus")).grid(row=row_num, column=5, padx=20)
 
             self.entries.append({
                 "entry": entry,
@@ -101,6 +112,8 @@ class Store:
             else:
                 self.items_list[product_index].stock_level -= amount
             new_stock = self.items_list[product_index].stock_level
+            if new_stock < 0:
+                new_stock = 0
             self.entries[product_index]["stock_label"].config(text=str(new_stock))
 
             entry_widget.config(bg="#008000")  # Set the initial background to dark
@@ -117,9 +130,15 @@ class Store:
     def new_item(self):
         name = self.name_entry.get()
         stock = self.stock_entry.get()
-        self.items_list.append(Item(name, stock))
-        self.render_items()
-
+        try:
+            stock = int(stock)  # Convert stock to an integer
+            self.items_list.append(Item(name, stock))  # Add the new item
+            self.render_items()  # Re-render the list with the new item
+            self.name_entry.delete(0, tk.END)  # Clear the name entry
+            self.stock_entry.delete(0, tk.END)  # Clear the stock entry
+        except ValueError:
+            self.error_label.config(text="Please enter a valid number for stock level.")
+            self.error_label.after(3000, lambda: self.error_label.config(text="")) 
 if __name__ == "__main__":
     root = tk.Tk()
     store = Store(root)
