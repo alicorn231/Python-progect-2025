@@ -18,6 +18,9 @@ class Store:
         self.data_frame = tk.Frame(root)
         self.data_frame.pack()
         tk.Label(self.data_frame, text="Product List", font=("Arial", 16, "bold")).grid(row=0, column=0, columnspan=5, pady=(0, 10))
+        label = tk.Label(self.data_frame, text="New Product:",  bd=2, relief="solid")
+        label.grid(row=1, column=0, padx=20, pady=5)
+        new_item = []
 
         # List of (name, stock) tuples
         products = [
@@ -49,17 +52,17 @@ class Store:
 
         # Create UI for each item
         for index, item in enumerate(self.items_list):
-            row_num = index + 1
+            row_num = index + 2
             tk.Label(self.data_frame, text=item.name).grid(row=row_num, column=0)
             stock_label = tk.Label(self.data_frame, text=str(item.stock_level))
-            stock_label.grid(row=(row_num), column=1)
+            stock_label.grid(row=(row_num), column=1, padx= 10)
 
             entry = tk.Entry(self.data_frame, width=5)
-            entry.grid(row=row_num, column=4)
+            entry.grid(row=row_num, column=3)
 
-            tk.Button(self.data_frame, text="Add:", command=lambda i=index: self.operate(i, "add")).grid(row=row_num, column=2)
+            tk.Button(self.data_frame, text="Add", command=lambda i=index: self.operate(i, "add")).grid(row=row_num, column=2)
 
-            tk.Button(self.data_frame, text="Minus:", command=lambda i=index: self.operate(i, "minus")).grid(row=row_num, column=3)
+            tk.Button(self.data_frame, text="Minus", command=lambda i=index: self.operate(i, "minus")).grid(row=row_num, column=4)
 
             self.entries.append({
                 "entry": entry,
@@ -67,7 +70,7 @@ class Store:
             })
 
 
-        self.error_label = tk.Label(self.root, fg="red", font=("Arial", 14, "bold"))
+        self.error_label = tk.Label(self.root, fg="red", font=("Arial", 30, "bold"))
         self.error_label.pack(pady=5)
 
     def operate(self, product_index, operator):
@@ -87,7 +90,7 @@ class Store:
 
             self.error_label.config(text="")
         except ValueError:
-            self.error_label.config(text="invalid input")
+            self.error_label.config(text="Enter a number")
             entry_widget.config(bg="red")
 
             self.error_label.after(3000, lambda: self.error_label.config(text=""))
